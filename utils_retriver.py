@@ -82,19 +82,28 @@ def replace_sql_query(query: str, keys: Dict[str, str]) -> str:
     Returns:
         str: Modified SQL query string.
     """
+    # breakpoint()
+    merch_keys = [ix for ix in keys.keys() if ("string" in ix)]
+
+    if merch_keys:
+        # 取商家名稱
+        merch_names = ", ".join(['"' + keys[key] + '"' for key in merch_keys])
+        query = query.replace("&string1, &string2, ...", "{merch_names}")
+        query = query.format(merch_names=merch_names)
 
     for key in keys:
-        if key in query:
+        if key not in merch_keys and key in query:
+            # 商家名稱已經處理過, 應跳過不重複處理
             query = query.replace(key, '"' + keys.get(key) + '"')
 
-    keys_to_be_replace = [ix for ix in query.split(" ") if ix.startswith("&")]
-
-    for key in keys_to_be_replace:
+    # 處理query中剩下沒換到的key
+    keys_to_be_remove = [ix for ix in query.split(" ") if ix.startswith("&")]
+    for key in keys_to_be_remove:
         if key in query:
             query = query.replace(key, "")
 
     # 字串取代 ", ...)" 取代為 ")"
-    query = re.sub(r",\s*\.\.\.\)", ")", query)
+    # query = re.sub(r",\s*\.\.\.\)", ")", query)
 
     # 處理in 中只有單一值的問題
     # breakpoint()
@@ -128,4 +137,3 @@ def get_sql_querys(response: Dict[str, Dict[str, str]], user_id: str) -> List[st
         querys.append(replace_sql_query(query, keys))
 
     return querys
-

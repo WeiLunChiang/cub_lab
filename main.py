@@ -16,7 +16,7 @@ from module_1_sql_query_extract import template as template_1
 from sqlite_create_and_insert import query_data_from_rdb
 
 from chat_momery import runnable_with_history
-
+from icecream import ic as print
 
 """
 簡要流程:
@@ -28,12 +28,14 @@ from chat_momery import runnable_with_history
 """
 
 # %% 1.用戶發問
-today = "2023-05-08"
+today = "2023-06-08"
 user_id = "A"
 
 # user_input = sys.argv[1]
-session_id = "996"
-user_input_raw = "那sogo百貨呢"  # 測試一至多家商家的取代狀況
+session_id = "92"
+user_input_raw = (
+    "你好, 我想知道我上個月在拉亞漢堡、悠遊加值、新光三越上花了多少錢"  # 測試一至多家商家的取代狀況
+)
 
 # %% 1.5 潤飾成完整問句
 
@@ -54,7 +56,7 @@ model = AzureChatOpenAI(
 vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_00")
 retriever = vectorstore.as_retriever(
     search_type="mmr",
-    search_kwargs={"k": 6, "lambda_mult": 0.25},
+    search_kwargs={"k": 1, "lambda_mult": 0.25},
 )
 
 prompt = ChatPromptTemplate.from_template(template_1)
@@ -69,9 +71,9 @@ chain = {
 } | RunnablePassthrough.assign(keys=json_parser_chain)
 
 response = chain.invoke(user_input)
-# breakpoint()
 try:
     querys = get_sql_querys(response=response, user_id=user_id)
+    print(querys)
 except:
     breakpoint()
 # %% SQL拉RDB 拿到資料
