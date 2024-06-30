@@ -1,9 +1,14 @@
+# %%
 import os
 import chromadb
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import AzureOpenAIEmbeddings
 from langchain.indexes import SQLRecordManager, index
+
+from functools import partial
+from collections import Counter
+from langchain_core.runnables import RunnableLambda
 
 
 def _get_Embeddings_func(emb_type: str = "azure"):
@@ -22,6 +27,7 @@ def _get_Embeddings_func(emb_type: str = "azure"):
 
 
 from chromadb.utils import embedding_functions
+
 
 def _get_azure_openai_ef():
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
@@ -170,11 +176,6 @@ def clear_collection(
     print(f"clear {vectordb}/ {collection_name}, \n{result}")
 
 
-from functools import partial
-from collections import Counter
-from langchain_core.runnables import RunnableLambda
-
-
 def _get_metadata(key, x):
     lst = [ix.metadata[key] for ix in x]
     if len(lst) == 1:
@@ -188,3 +189,36 @@ def _get_metadata(key, x):
 def get_metadata_runnable(metadata_key):
     f = partial(_get_metadata, metadata_key)
     return RunnableLambda(f)
+
+
+def delete_data_from_chroma(
+    host: str = "127.0.0.1",
+    port: str = "8000",
+    collection_name: str = "collect_cubelab_qa_00",
+    filter_criteria: dict = {"category": "example_category"},
+) -> None:
+
+    # 選擇資料庫中的集合
+    collection = get_or_create_chroma_http_collection(
+        host=host,
+        port=port,
+        collection_name=collection_name,
+    )
+    # 查詢符合篩選條件的資料
+    documents_to_delete = collection.get(where=filter_criteria)
+
+    # 批量刪除符合條件的資料
+    collection.delete(ids=documents_to_delete["ids"])
+
+    print(
+        f"collection: {collection_name} 資料{len(documents_to_delete['ids'])}筆 刪除完成"
+    )
+
+
+# %%
+if __name__ == "__main__":
+    filter_criteria = {"category": "D"}
+    delete_data_from_chroma(
+        collection_name="collect_cubelab_qa_00", filter_criteria=filter_criteria
+    )
+# %%
