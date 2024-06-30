@@ -32,9 +32,9 @@ today = "2023-06-08"
 user_id = "A"
 
 # user_input = sys.argv[1]
-session_id = "92"
+session_id = "90010"
 user_input_raw = (
-    "你好, 我想知道我上個月在拉亞漢堡、悠遊加值、新光三越上花了多少錢"  # 測試一至多家商家的取代狀況
+    "過去一年呢?"  # 測試一至多家商家的取代狀況
 )
 
 # %% 1.5 潤飾成完整問句
@@ -56,7 +56,7 @@ model = AzureChatOpenAI(
 vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_00")
 retriever = vectorstore.as_retriever(
     search_type="mmr",
-    search_kwargs={"k": 1, "lambda_mult": 0.25},
+    search_kwargs={"k": 3, "lambda_mult": 0.25},
 )
 
 prompt = ChatPromptTemplate.from_template(template_1)
@@ -66,23 +66,20 @@ json_parser_chain = prompt | model | JsonOutputParser()
 chain = {
     "標準問題": retriever | get_metadata_runnable("問題類別"),
     "SQL": retriever | get_metadata_runnable("SQL1", "SQL2", "SQL3"),
+    # "TYPE": retriever | get_metadata_runnable("TYPE"),
     "question": RunnablePassthrough(),
     "today": RunnableLambda(lambda x: today),
 } | RunnablePassthrough.assign(keys=json_parser_chain)
 
 response = chain.invoke(user_input)
-try:
-    querys = get_sql_querys(response=response, user_id=user_id)
-    print(querys)
-except:
-    breakpoint()
+querys = get_sql_querys(response=response, user_id=user_id)
+print(querys)
+
 # %% SQL拉RDB 拿到資料
 df_list = query_data_from_rdb(querys, "cubelab_txn.db")
 
 # %% 資料+回答潤飾 拿到回答
-
 from module2_llm_response import template as template_2
-
 
 # %%
 prompt = ChatPromptTemplate.from_template(template_2)
