@@ -28,8 +28,8 @@ from module2_llm_response import template as template_2
 # %% 1.用戶發問
 today = "2023-06-08"
 user_id = "A"
-session_id = "1234567"
-user_input_raw = "請給我過去一年的消費紀錄"  # "請給我過去一年的消費紀錄" "我過去一年花了多少錢"<- 這句沒過
+session_id = "12345"
+user_input_raw = "我這個月在蝦皮花了多少錢?"  # "請給我過去一年的消費紀錄" "我過去一年花了多少錢"<- 這句沒過
 
 # %% 1.5 完整問句
 

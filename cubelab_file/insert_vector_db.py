@@ -5,8 +5,7 @@ import pickle
 import time
 import pandas as pd
 from tqdm import tqdm
-# from langchain_community.document_loaders.csv_loader import CSVLoader
-from utils_vectordb import CustomCSVLoader as CSVLoader
+from langchain_community.document_loaders.csv_loader import CSVLoader
 from utils_vectordb import get_or_create_http_chromadb
 # %%
 
@@ -108,16 +107,14 @@ def insert_to_vector_db(
     file_path="qa_set_with_sql.csv",
     collection_name="collect_cubelab_qa_test999",
     metadata_columns=["category", "問題類別", "SQL1", "SQL2", "SQL3"],
-    source_column='變形問題',
 ):
     # 載入CSV檔案，並指定metadata欄位
     loader = CSVLoader(
         file_path=file_path,
         metadata_columns=metadata_columns,
-        source_column=source_column,
-    )    
+    )
+
     docs = loader.load()
-    # breakpoint()
     list_length = len(docs)
     num_batches = num_batches
     batch_size = list_length // num_batches
@@ -144,12 +141,10 @@ def insert_to_vector_db(
                 batch = list(
                     itertools.islice(docs, i * batch_size, (i + 1) * batch_size)
                 )
-                # breakpoint()
                 vector_db.add_documents(batch)
                 # 每次成功處理一個batch後，將c的值寫入resume_file
                 with open(resume_file, "wb") as f:
                     pickle.dump(c, f)
-                break
             # 完成所有批次上傳後，刪除resume_file
             if os.path.exists(resume_file):
                 os.remove(resume_file)
@@ -162,17 +157,5 @@ def insert_to_vector_db(
 
 
 if __name__ == "__main__":
-    # create_csv()
+    create_csv()
     insert_to_vector_db()
-
-# %%
-
-# from utils_vectordb import CustomCSVLoader
-# loader = CustomCSVLoader(
-#     file_path="qa_set_with_sql.csv",
-#     metadata_columns=["category", "問題類別", "SQL1", "SQL2", "SQL3"],
-#     source_column='變形問題',
-# )
-# docs = loader.load()
-# docs[0]
-# %%

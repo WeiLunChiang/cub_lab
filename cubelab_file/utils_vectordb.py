@@ -11,26 +11,6 @@ from collections import Counter
 from langchain_core.runnables import RunnableLambda
 
 
-import os
-from langchain_community.document_loaders import CSVLoader
-from langchain.schema import Document
-
-class CustomCSVLoader(CSVLoader):
-    def __init__(self, file_path, metadata_columns, source_column):
-        super().__init__(file_path=file_path, metadata_columns=metadata_columns, source_column=source_column)
-        self.file_name = os.path.basename(file_path)  # 提取文件名
-        self.source_column = source_column
-
-    def load(self):
-        docs = super().load()
-        prefix = f'{self.source_column}: '
-        for doc in docs:
-            if doc.page_content.startswith(prefix):
-                doc.page_content = doc.page_content[len(prefix):]
-            doc.metadata['source'] = self.file_name  # 設置 metadata['source'] 為文件名
-        return docs
-
-
 def _get_Embeddings_func(emb_type: str = "azure"):
     """
     搭配chroma ,原生api無法操作
@@ -237,9 +217,8 @@ def delete_data_from_chroma(
 
 # %%
 if __name__ == "__main__":
-    filter_criteria = {"category": "A"}
+    filter_criteria = {"category": "D"}
     delete_data_from_chroma(
         collection_name="collect_cubelab_qa_test999", filter_criteria=filter_criteria
     )
-
 # %%
