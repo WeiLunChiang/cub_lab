@@ -98,3 +98,6 @@ __pycache__/
 *.db
 *.sql
 *.sqlite
+
+# 忽略待辦清單
+TODO
