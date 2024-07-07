@@ -5,10 +5,13 @@ import pickle
 import time
 import pandas as pd
 from tqdm import tqdm
+
 # from langchain_community.document_loaders.csv_loader import CSVLoader
 from utils_vectordb import CustomCSVLoader as CSVLoader
 from utils_vectordb import get_or_create_http_chromadb
+
 # %%
+
 
 def create_csv():
 
@@ -103,19 +106,19 @@ def create_csv():
 
 
 def insert_to_vector_db(
-    num_batches=150,
+    num_batches=1,
     max_retries=20,
-    file_path="qa_set_with_sql.csv",
-    collection_name="collect_cubelab_qa_test999",
-    metadata_columns=["category", "問題類別", "SQL1", "SQL2", "SQL3"],
-    source_column='變形問題',
+    file_path="qa_set_with_sql_lite.csv",
+    collection_name="collect_cubelab_qa_lite",
+    metadata_columns=["category", "變形問題", "SQL1", "SQL2", "SQL3"],
+    source_column="問題類別",
 ):
     # 載入CSV檔案，並指定metadata欄位
     loader = CSVLoader(
         file_path=file_path,
         metadata_columns=metadata_columns,
         source_column=source_column,
-    )    
+    )
     docs = loader.load()
     # breakpoint()
     list_length = len(docs)
@@ -161,9 +164,32 @@ def insert_to_vector_db(
         print("已達到最大重試次數，操作失敗")
 
 
+def create_csv_ner():
+
+    qa = pd.read_excel("./cubelab.xlsx", sheet_name="QA")
+    qa.rename(
+        {
+            "編號": "category",
+            "Q": "變形問題",
+        },
+        axis=1,
+        inplace=True,
+    )
+    qa.to_csv("qa_set_with_sql_lite.csv", index=False)
+    print(qa.columns)
+
+
 if __name__ == "__main__":
-    # create_csv()
-    insert_to_vector_db()
+    create_csv_ner()
+    insert_to_vector_db(
+        num_batches=1,
+        max_retries=20,
+        file_path="qa_set_with_sql_lite.csv",
+        collection_name="collect_cubelab_qa_lite_2",
+        metadata_columns=["category", "問題類別", "SQL1", "SQL2", "SQL3"],
+        source_column="變形問題"
+    )
+
 
 # %%
 
