@@ -5,6 +5,9 @@ from typing import List, Callable, Dict
 from operator import itemgetter
 import re
 
+from langchain_core.documents import Document
+from langchain_core.runnables import chain
+
 
 # %%
 def _get_metadata(response: List, *keys: str) -> List:
@@ -133,7 +136,48 @@ def get_sql_querys(response: Dict[str, Dict[str, str]], user_id: str) -> List[st
     keys["&CustomerID"] = user_id
 
     querys = []
-    for query in response["SQL"]:
+    for query in response['retriever']["SQL"]:
         querys.append(replace_sql_query(query, keys))
 
     return querys
+
+
+def RetrieveWithScore(
+    vectorstore: "VectorStore",
+    k: int = 4,
+    score_threshold: float = 0.8,
+) -> Callable[[str], List[Document]]:
+    """
+    Creates a retriever to fetch relevant documents from a vector store.
+
+    Args:
+        vectorstore (VectorStore): The vector store instance.
+        k (int, optional): Max number of documents to retrieve. Default is 4.
+        score_threshold (float, optional): Minimum relevance score. Default is 0.8.
+
+    Returns:
+        Callable[[str], List[Document]]: A function that retrieves documents.
+    """
+
+    @chain
+    def retriever(query: str) -> List[Document]:
+        """
+        Retrieves relevant documents based on a query.
+
+        Args:
+            query (str): The query string.
+
+        Returns:
+            List[Document]: List of documents with relevance scores.
+        """
+        result = vectorstore.similarity_search_with_relevance_scores(
+            query=query, k=k, score_threshold=score_threshold
+        )
+        if result:
+            docs, scores = zip(*result)
+            for doc, score in zip(docs, scores):
+                doc.metadata["score"] = score
+            return list(docs)
+        return []
+
+    return retriever
