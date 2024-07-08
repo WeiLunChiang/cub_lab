@@ -31,7 +31,7 @@ def create_csv():
     # %%
     for t in list_time:
         d = qa[qa["編號"] == "A"]["變形問題"].apply(
-            lambda x: x.replace("[某個消費時間]", str(t))
+            lambda x: x.replace("[時間]", str(t))
         )
         l.append(
             pd.DataFrame(
@@ -45,7 +45,7 @@ def create_csv():
     for t, n in itertools.product(list_time, list_name):
 
         d = qa[qa["編號"] == "B"]["變形問題"].apply(
-            lambda x: x.replace("[某個消費時間]", str(t)).replace("[某個商戶]", str(n))
+            lambda x: x.replace("[時間]", str(t)).replace("[商戶]", str(n))
         )
         l.append(
             pd.DataFrame(
@@ -59,7 +59,7 @@ def create_csv():
     for t, c in itertools.product(list_time, list_category):
 
         d = qa[qa["編號"] == "C"]["變形問題"].apply(
-            lambda x: x.replace("[某個消費時間]", str(t)).replace("[消費類別]", str(c))
+            lambda x: x.replace("[時間]", str(t)).replace("[類別]", str(c))
         )
         l.append(
             pd.DataFrame(
