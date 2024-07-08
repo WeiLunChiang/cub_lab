@@ -101,3 +101,6 @@ __pycache__/
 
 # 忽略待辦清單
 TODO
+# 忽略暫時存檔
+/json_files/*
+/chromadb
