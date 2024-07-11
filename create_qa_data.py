@@ -1,9 +1,9 @@
 import itertools
 import pandas as pd
-qa = pd.read_excel("../cubelab_mod.xlsx", sheet_name="QA")
-data_time = pd.read_excel("../cubelab_mod.xlsx", sheet_name="時間")
-data_name = pd.read_excel("../cubelab_mod.xlsx", sheet_name="特店名稱")
-data_問題類別 = pd.read_excel("../cubelab_mod.xlsx", sheet_name="消費類別")
+qa = pd.read_excel("./cubelab.xlsx", sheet_name="QA")
+data_time = pd.read_excel("./cubelab.xlsx", sheet_name="時間")
+data_name = pd.read_excel("./cubelab.xlsx", sheet_name="特店名稱")
+data_問題類別 = pd.read_excel("./cubelab.xlsx", sheet_name="消費類別")
 
 # %%
 list_問題類別 = list(data_問題類別["消費類別"])
