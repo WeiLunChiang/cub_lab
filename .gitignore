@@ -103,4 +103,6 @@ __pycache__/
 TODO
 # 忽略暫時存檔
 /json_files/*
+/json_files_from_query_ner/*
 /chromadb
+progress.json

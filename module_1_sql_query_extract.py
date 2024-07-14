@@ -109,7 +109,7 @@ def main():
         azure_deployment=os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"],
     )
 
-    # vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_lite_2")
+    # vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_lite")
     # retriever = vectorstore.as_retriever(
     #     search_type="similarity",
     #     search_kwargs={"k": 1, "metric": "cosine"}

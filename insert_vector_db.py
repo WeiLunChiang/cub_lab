@@ -10,9 +10,8 @@ from tqdm import tqdm
 from utils_vectordb import CustomCSVLoader as CSVLoader
 from utils_vectordb import get_or_create_http_chromadb
 
-# %%
 
-
+# %% 將ner版本的問題集存入VDB
 def create_csv():
 
     qa = pd.read_excel("./cubelab.xlsx", sheet_name="QA")
@@ -91,17 +90,12 @@ def create_csv():
         .reset_index(drop=True)
     )
     a_df.rename({"編號": "category"}, axis=1, inplace=True)
-    # %%
     a_df["SQL1"] = a_df["SQL1"].apply(lambda x: x.replace("\n", " "))
     a_df["SQL2"] = a_df["SQL2"].apply(lambda x: x.replace("\n", " "))
     a_df["SQL3"] = a_df["SQL3"].apply(lambda x: x.replace("\n", " "))
 
-    # %%
     df = df.merge(a_df, on="category", how="left")
-
-    # %%
     df.rename({"Q": "變形問題"}, axis=1, inplace=True)
-    # %%
     df.to_csv("qa_set_with_sql.csv", index=False)
 
 
@@ -165,7 +159,6 @@ def insert_to_vector_db(
 
 
 def create_csv_ner():
-
     qa = pd.read_excel("./cubelab.xlsx", sheet_name="QA")
     qa.rename(
         {
@@ -185,20 +178,7 @@ if __name__ == "__main__":
         num_batches=1,
         max_retries=20,
         file_path="qa_set_with_sql_lite.csv",
-        collection_name="collect_cubelab_qa_lite_2",
+        collection_name="collect_cubelab_qa_lite",
         metadata_columns=["category", "問題類別", "SQL1", "SQL2", "SQL3"],
-        source_column="變形問題"
+        source_column="變形問題",
     )
-
-
-# %%
-
-# from utils_vectordb import CustomCSVLoader
-# loader = CustomCSVLoader(
-#     file_path="qa_set_with_sql.csv",
-#     metadata_columns=["category", "問題類別", "SQL1", "SQL2", "SQL3"],
-#     source_column='變形問題',
-# )
-# docs = loader.load()
-# docs[0]
-# %%

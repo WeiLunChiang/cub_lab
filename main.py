@@ -5,7 +5,10 @@ from langchain_openai import AzureChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import RunnableLambda
-from utils_vectordb import get_or_create_http_chromadb
+from utils_vectordb import (
+    get_or_create_http_chromadb,
+    get_or_create_chroma_http_collection,
+)
 from utils_retriever import get_metadata_runnable, get_sql_querys, RetrieveWithScore
 from langchain_core.output_parsers import StrOutputParser
 from module_1_sql_query_extract import template_1, template_2
@@ -14,6 +17,8 @@ from chat_momery import runnable_with_history
 from icecream import ic as print
 from module2_llm_response import template as template_3
 
+# %%
+os.environ["PYDEVD_WARN_EVALUATION_TIMEOUT"] = "30"
 # %%
 """
 簡要流程:
@@ -44,10 +49,10 @@ model = AzureChatOpenAI(
     azure_deployment=os.environ["AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"],
 )
 
-vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_lite_2")
+vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_lite")
 
-retriever = RetrieveWithScore(vectorstore, k=3, score_threshold=0.1)
-
+# retriever = RetrieveWithScore(vectorstore, k=3, score_threshold=0.1)
+retriever = vectorstore.as_retriever()
 
 prompt = ChatPromptTemplate.from_template(template_2)
 
@@ -61,6 +66,7 @@ retriever_chain = (
         "SQL": get_metadata_runnable("SQL1", "SQL2", "SQL3"),
         "標準問題": get_metadata_runnable("問題類別"),
         "category": get_metadata_runnable("category"),
+        # "score": get_metadata_runnable("score"),
     }
 )
 
