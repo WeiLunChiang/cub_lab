@@ -185,7 +185,7 @@ if __name__ == "__main__":
 
     df = pd.read_csv(similarity_search_path / "merged_data_with_extra_q.csv")
 
-    df["排序"] = df.groupby(["問題類別", "變形問題"])["相似度"].rank(
+    df["排序"] = df.groupby(["問題類別", "原始問題"])["相似度"].rank(
         ascending=False,
         method="dense",
     )
@@ -216,6 +216,7 @@ if __name__ == "__main__":
                 ],
                 axis=0,
             )
+        result = result[~result.duplicated()]
         result.reset_index(drop=True, inplace=True)
 
         return result
