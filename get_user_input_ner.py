@@ -15,7 +15,8 @@ os.environ["PYDEVD_WARN_EVALUATION_TIMEOUT"] = "300"
 # %% 用戶發問-> 打LLM ner -> 儲存成json -> 整理成csv
 
 df = pd.read_csv("qa_set_with_sql.csv")
-df_A_C_D = df[df["category"].isin(["A", "D"])]
+df_A_C_D = df[df["category"].isin(["A", "C", "D"])]
+df_C = df[df["category"].isin(["C"])]
 
 # 隨機抽取 category 為 B 的 20000 筆資料
 df_B_sample = df[df["category"] == "B"].sample(n=20000, random_state=1, replace=False)
