@@ -63,6 +63,7 @@ def load_progress(filename: Path) -> int:
 
 
 def process_batches(data: pd.DataFrame, collection: Any, batch_size: int = 200):
+    all_org_queries = list(data["query"])
     all_queries = list(data["變形問題"])
     all_categories = list(data["category"])
 
@@ -81,6 +82,9 @@ def process_batches(data: pd.DataFrame, collection: Any, batch_size: int = 200):
         leave=True,
     ) as pbar:
         for batch_idx in range(start_batch, num_batches):
+            batch_org_queries = all_org_queries[
+                batch_idx * batch_size : (batch_idx + 1) * batch_size
+            ]
             batch_queries = all_queries[
                 batch_idx * batch_size : (batch_idx + 1) * batch_size
             ]
@@ -97,6 +101,7 @@ def process_batches(data: pd.DataFrame, collection: Any, batch_size: int = 200):
             results = []
             for j in range(len(batch_queries)):
                 result = {
+                    "原始問題": batch_org_queries[j],
                     "問題類別": batch_categories[j],
                     "變形問題": batch_queries[j],
                     "相似度": similarities[j],
@@ -175,7 +180,7 @@ if __name__ == "__main__":
     merge_data(
         json_dir=similarity_search_path,
         output_csv_file=similarity_search_path / "merged_data_with_extra_q.csv",
-        fieldnames=["問題類別", "變形問題", "相似度", "document"],
+        fieldnames=["原始問題","問題類別", "變形問題", "相似度", "document"],
     )
 
     df = pd.read_csv(similarity_search_path / "merged_data_with_extra_q.csv")
@@ -219,7 +224,7 @@ if __name__ == "__main__":
     result_df = group_min_max(df, list("ABCDEFG"))
 
     # %%
-
+    # 待確認排序為什麼不是前50名平均
     with pd.ExcelWriter(base_path / "output.xlsx", engine="xlsxwriter") as writer:
         df1.to_excel(writer, sheet_name="相似度", index=False)
         df2.to_excel(writer, sheet_name="by 問題類別", index=False)
