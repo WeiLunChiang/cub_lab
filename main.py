@@ -32,8 +32,8 @@ os.environ["PYDEVD_WARN_EVALUATION_TIMEOUT"] = "30"
 # %% 1.用戶發問
 today = "2023-06-08"
 user_id = "A"
-session_id = "099"
-user_input_raw = "過去一年我在蝦皮花了多少錢?"  # "請給我過去一年的消費紀錄" "我過去一年花了多少錢"<- 這句沒過
+session_id = "0999999"
+user_input_raw = "過去一年我在蝦皮、優食花了多少錢?"  # "請給我過去一年的消費紀錄" "我過去一年花了多少錢"<- 這句沒過
 
 # %% 1.5 完整問句
 
@@ -51,11 +51,10 @@ model = AzureChatOpenAI(
 
 vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_lite")
 
-# retriever = RetrieveWithScore(vectorstore, k=3, score_threshold=0.1)
-retriever = vectorstore.as_retriever()
+retriever = RetrieveWithScore(vectorstore, k=3, score_threshold=0)
+# retriever = vectorstore.as_retriever()
 
 prompt = ChatPromptTemplate.from_template(template_2)
-
 
 json_parser_chain = prompt | model | JsonOutputParser()
 
@@ -66,7 +65,7 @@ retriever_chain = (
         "SQL": get_metadata_runnable("SQL1", "SQL2", "SQL3"),
         "標準問題": get_metadata_runnable("問題類別"),
         "category": get_metadata_runnable("category"),
-        # "score": get_metadata_runnable("score"),
+        "score": get_metadata_runnable("score"),
     }
 )
 

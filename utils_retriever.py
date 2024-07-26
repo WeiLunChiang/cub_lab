@@ -1,7 +1,7 @@
 # %%
 from collections import Counter
 from langchain_core.runnables import RunnableLambda
-from typing import List, Callable, Dict
+from typing import List, Callable, Dict, Union, Any
 from operator import itemgetter
 import re
 
@@ -10,34 +10,39 @@ from langchain_core.runnables import chain
 
 
 # %%
-def _get_metadata(response: List, *keys: str) -> List:
-    """
-    Retrieves metadata based on provided keys from the response.
 
-    If the response contains only one element, it directly retrieves
-    the value corresponding to the keys from the metadata of that element.
-    If the response contains multiple elements, it retrieves the value
-    corresponding to the keys from the metadata of each element, and returns
-    the value that appears the most times.
+
+def _get_metadata(response: List[Any], *keys: str) -> List[Any]:
+    """
+    Retrieve metadata based on provided keys from the response.
+
+    For single-element responses, return the value directly.
+    For multiple-element responses, return the maximum value for numerical types,
+    or the most common value for other types.
 
     Parameters:
     response -- A list containing metadata
     *keys -- The keys to retrieve from the metadata
 
     Returns:
-    A list containing the values retrieved from the metadata.
+    A list containing the retrieved values.
     """
-    if len(response) == 1:
-        res = itemgetter(*keys)(response[0].metadata)
-    else:
-        lst = [itemgetter(*keys)(ix.metadata) for ix in response]
-        counter = Counter(lst)
-        res = counter.most_common(1)[0][0]
 
-    if len(keys) == 1:
-        return [res]
+    if not response:
+        return []
+
+    if len(response) == 1:
+        result = itemgetter(*keys)(response[0].metadata)
     else:
-        return list(res)
+        metadata_list = [itemgetter(*keys)(item.metadata) for item in response]
+
+        if isinstance(metadata_list[0], (int, float)):
+            result = max(metadata_list)
+        else:
+            counter = Counter(metadata_list)
+            result = counter.most_common(1)[0][0]
+
+    return [result] if len(keys) == 1 else list(result)
 
 
 def _create_partial_func(func: Callable, *keys: str) -> Callable:
@@ -136,7 +141,7 @@ def get_sql_querys(response: Dict[str, Dict[str, str]], user_id: str) -> List[st
     keys["&CustomerID"] = user_id
 
     querys = []
-    for query in response['retriever']["SQL"]:
+    for query in response["retriever"]["SQL"]:
         querys.append(replace_sql_query(query, keys))
 
     return querys
