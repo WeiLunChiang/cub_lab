@@ -6,6 +6,8 @@
 
 # 忽略環境配置文件
 .env
+# jupyter文件
+*.ipynb
 
 # 忽略操作系統生成的文件
 .DS_Store
