@@ -12,6 +12,7 @@ from create_and_insert_sqlite import query_data_from_rdb
 from chat_momery import runnable_with_history
 from icecream import ic as print
 from module2_llm_response import template as template_3
+from module2_llm_response import cust_desc_dict
 from utils_vectordb import get_or_create_http_chromadb
 from utils_logging import mlflow_exception_logger, mlflow_openai_callback
 
@@ -99,17 +100,22 @@ def main():
     # %%
     chain = prompt | model | parser
 
+    tones = ["高端VIP用戶", "一般用戶", "態度不佳用戶"]
     # 打LLM
-    response = chain.invoke(
-        {
-            "user_input": user_input,
-            "response_1": df_list[0],
-            "response_2": df_list[1],
-            "response_3": df_list[2],
-        }
-    )
-    # %%
-    print(response)
+    for tone in tones:
+        print(tone)
+        response = chain.invoke(
+            {
+                "user_input": user_input,
+                "response_1": df_list[0],
+                "response_2": df_list[1],
+                # "response_3": df_list[2],
+                "tone": tone,
+                "desc": cust_desc_dict.get(tone),
+            }
+        )
+        # %%
+        print(response)
 
     # %%
 
@@ -119,5 +125,5 @@ if __name__ == "__main__":
 
     mlflow.set_experiment("cubelab_demo")
     mlflow.langchain.autolog()
-    with mlflow.start_run(run_name="test123") as run:
+    with mlflow.start_run() as run:
         main()

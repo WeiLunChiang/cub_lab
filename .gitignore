@@ -108,3 +108,6 @@ TODO
 /json_files_from_query_ner/*
 /chromadb
 progress.json
+
+/mlruns
+mlflow.db
