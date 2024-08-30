@@ -100,24 +100,32 @@ def main():
     # %%
     chain = prompt | model | parser
 
-    tones = ["高端VIP用戶", "一般用戶", "態度不佳用戶"]
+    # tones = ["高端VIP用戶", "一般用戶", "態度不佳用戶"]
     # 打LLM
-    for tone in tones:
-        print(tone)
-        response = chain.invoke(
-            {
-                "user_input": user_input,
-                "response_1": df_list[0],
-                "response_2": df_list[1],
-                # "response_3": df_list[2],
-                "tone": tone,
-                "desc": cust_desc_dict.get(tone),
-            }
-        )
-        # %%
-        print(response)
+    # for tone in tones:
+    #     print(tone)
+    #     response = chain.invoke(
+    #         {
+    #             "user_input": user_input,
+    #             "response_1": df_list[0],
+    #             "response_2": df_list[1],
+    #             # "response_3": df_list[2],
+    #             "tone": tone,
+    #             "desc": cust_desc_dict.get(tone),
+    #         }
+    #     )
 
-    # %%
+    response = chain.invoke(
+        {
+            "user_input": user_input,
+            "response_1": df_list[0],
+            "response_2": df_list[1],
+            # "response_3": df_list[2],
+            "tone": "一般用戶",
+            "desc": cust_desc_dict.get(tone),
+        }
+    )
+    print(response)
 
 
 if __name__ == "__main__":
