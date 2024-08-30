@@ -111,3 +111,6 @@ progress.json
 
 /mlruns
 mlflow.db
+
+batch_*.json
+output.json

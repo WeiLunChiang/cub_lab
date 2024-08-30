@@ -44,6 +44,25 @@ def _get_metadata(response: List[Any], *keys: str) -> List[Any]:
 
     return [result] if len(keys) == 1 else list(result)
 
+def _get_page_content(response: List[Any]) -> List[Any]:
+
+    if not response:
+        return []
+
+    if len(response) == 1:
+        result = response[0].page_content
+    else:
+        
+        page_content_list = [item.page_content for item in response]
+
+        if isinstance(page_content_list[0], (int, float)):
+            result = max(page_content_list)
+        else:
+            counter = Counter(page_content_list)
+            result = counter.most_common(1)[0][0]
+
+    return [result]
+
 
 def _create_partial_func(func: Callable, *keys: str) -> Callable:
     """
@@ -76,6 +95,11 @@ def get_metadata_runnable(*keys: str) -> Callable[[List], List]:
     A langchain runnable function with the provided keys when invoked.
     """
     f = _create_partial_func(_get_metadata, *keys)
+    return RunnableLambda(f)
+
+
+def get_page_content_runnable(*keys: str) -> Callable[[List], List]:
+    f = _create_partial_func(_get_page_content, *keys)
     return RunnableLambda(f)
 
 
