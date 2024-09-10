@@ -1,3 +1,4 @@
+# %%
 import os
 import math
 import pickle
@@ -18,7 +19,7 @@ batch_size = 50
 
 vectorstore = get_or_create_http_chromadb(collection_name="collect_cubelab_qa_lite")
 
-retriever = RetrieveWithScore(vectorstore, k=3, score_threshold=0)
+retriever = RetrieveWithScore(vectorstore, k=1, score_threshold=0)
 
 retriever_chain = (
     RunnableLambda(lambda response: response["response"]["modify_query"])
@@ -56,6 +57,7 @@ for i in tqdm(range(start_batch, total_batches)):
     for r, d in zip(batch_results, batch_data):
         r["問題類別"] = d["category"]
         r["變形問題"] = d["question"]
+        r["變形問題_挖空"] = d["response"]["modify_query"]
         l.append(r)
 
     # 將批次結果保存為獨立的 JSON 文件
@@ -89,7 +91,7 @@ if os.path.exists(progress_file):
 # 日誌輸出結果數量
 print(f"Total results saved: {len(all_results)}")
 
-#TODO: 加入page_contetn欄位
+#TODO: 加入page_content欄位
 # %%
 import json
 import numpy
@@ -132,5 +134,5 @@ dd.rename({"category": "VDB類別"}, axis=1, inplace=True)
 ddd = ddd.merge(dd[["變形問題", "VDB類別", "_category_q","標準問題"]], on="變形問題", how="inner")
 # %%
 
-ddd.to_excel('正確率計算_v2.xlsx')
+ddd.to_excel('正確率計算_v42.xlsx')
 # %%
