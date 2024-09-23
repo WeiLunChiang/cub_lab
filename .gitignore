@@ -114,3 +114,6 @@ mlflow.db
 
 batch_*.json
 output.json
+output_retreival.json
+temp_progress_batch*.json
+conti_question.json
